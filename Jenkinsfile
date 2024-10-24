@@ -20,6 +20,13 @@ pipeline {
                  
             }
         }
+         stage('test') {
+              steps{
+                echo 'test -f build/index.html'
+              }
+
+              
+          }
          
     }
 }
