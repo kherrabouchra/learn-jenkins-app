@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        NETLIFY_SITE_ID = 'cef10f4c-8b9b-4b73-885d-39db32eb2f70'
+        NETLIFY_SITE_ID = '!!! FIXME: YOUR-SITE-ID !!!'
+        NETLIFY_AUTH_TOKEN = credentials('nfp_zAivoVBFBBmr8PaWRCWFbzVhy6buh1HDf1b9')
     }
 
     stages {
@@ -28,7 +29,27 @@ pipeline {
 
         stage('Tests') {
             parallel {
-                 
+                stage('Unit tests') {
+                    agent {
+                        docker {
+                            image 'node:18-alpine'
+                            reuseNode true
+                        }
+                    }
+
+                    steps {
+                        sh '''
+                            #test -f build/index.html
+                            npm test
+                        '''
+                    }
+                    post {
+                        always {
+                            junit 'jest-results/junit.xml'
+                        }
+                    }
+                }
+
                 stage('E2E') {
                     agent {
                         docker {
@@ -67,6 +88,7 @@ pipeline {
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify status
                 '''
             }
         }
